@@ -1,14 +1,78 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    {{ form_start(form) }}
+	<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem;">
+		<h1 style="color: #333; margin-bottom: 1rem;">Créer un pointage</h1>
 
-    {{ form_start(form) }}
+		{{ form_start(form, {
+			attr: {
+				style: 'background-color: #f7f7f7; padding: 2rem; border-radius: 8px; color: #000; max-width: 700px; width: 100%;'
+			}
+		}) }}
 
-    {{ form_row(form.clockingProject) }}
-    {{ form_row(form.clockingUser) }}
-    {{ form_row(form.date) }}
-    {{ form_row(form.duration) }}
+		<div style="margin-bottom: 1.5rem;">
+			{{ form_row(form.clockingUser, {
+				label_attr: { style: 'color: #555; font-weight: bold;' },
+				attr: { style: 'background-color: #ffffff; color: #000; border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;' }
+			}) }}
+		</div>
 
-    {{ form_end(form) }}
+		<div style="margin-bottom: 1.5rem;">
+			{{ form_row(form.date, {
+				label_attr: { style: 'color: #555; font-weight: bold;' },
+				attr: { style: 'background-color: #ffffff; color: #000; border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;' }
+			}) }}
+		</div>
+
+		<h3 style="color: #444;">Chantiers</h3>
+
+		<div id="entries-wrapper" data-prototype="{{ form_widget(form.entries.vars.prototype)|e('html_attr') }}" style="width: 100%;">
+			{% for entryForm in form.entries %}
+				<div class="entry-item" style="background-color: #efefef; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+					{{ form_row(entryForm.project, {
+						label_attr: { style: 'color: #444;' },
+						attr: { style: 'background-color: #fff; color: #000; border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;' }
+					}) }}
+					{{ form_row(entryForm.duration, {
+						label_attr: { style: 'color: #444;' },
+						attr: { style: 'background-color: #fff; color: #000; border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;' }
+					}) }}
+				</div>
+			{% endfor %}
+		</div>
+
+		<button type="button" id="add-entry" style="background-color: #ccc; color: #000; border: 1px solid #aaa; padding: 0.5rem 1rem; border-radius: 4px; margin-bottom: 1rem; cursor: pointer;">
+			+ Ajouter un chantier
+		</button>
+
+		{{ form_row(form.submit, {
+			attr: {
+				style: 'background-color: #333; color: #fff; border: none; padding: 0.6rem 1.2rem; border-radius: 4px; margin-top: 1rem; cursor: pointer;'
+			}
+		}) }}
+
+		{{ form_end(form) }}
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			const wrapper = document.getElementById('entries-wrapper');
+			const addButton = document.getElementById('add-entry');
+			let index = {{ form.entries|length }};
+
+			addButton.addEventListener('click', () => {
+				const prototype = wrapper.dataset.prototype;
+				const newFormHtml = prototype.replace(/__name__/g, index);
+				const entryDiv = document.createElement('div');
+
+				entryDiv.setAttribute('style', 'background-color: #efefef; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;');
+				entryDiv.innerHTML = newFormHtml;
+				wrapper.appendChild(entryDiv);
+				index++;
+			});
+		});
+	</script>
 {% endblock %}

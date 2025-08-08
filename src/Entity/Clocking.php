@@ -1,82 +1,94 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Entity;
 
 use App\Repository\ClockingRepository;
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ClockingRepository::class)]
 class Clocking
 {
-
-    #[ORM\ManyToOne(inversedBy: 'clockings')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Project           $clockingProject = null;
-    #[ORM\ManyToOne(inversedBy: 'clockings')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User              $clockingUser    = null;
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?DateTimeInterface $date            = null;
-    #[Assert\Positive]
-    #[Assert\LessThanOrEqual(value: 10)]
-    #[ORM\Column(type: Types::INTEGER)]
-    private ?int               $duration        = null;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int               $id              = null;
+    private ?int $id = null;
 
-    public function getClockingProject() : ?Project
+    #[ORM\ManyToOne(inversedBy: 'clockings')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $clockingUser = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    private ?DateTimeInterface $date = null;
+
+    #[ORM\OneToMany(mappedBy: 'clocking', targetEntity: ClockingEntry::class, cascade: ['persist'], orphanRemoval: true)]
+    private Collection $entries;
+
+    public function __construct()
     {
-        return $this->clockingProject;
+        $this->entries = new ArrayCollection();
     }
 
-    public function setClockingProject(?Project $clockingProject) : static
+    public function getId(): ?int
     {
-        $this->clockingProject = $clockingProject;
-
-        return $this;
+        return $this->id;
     }
 
-    public function getClockingUser() : ?User
+    public function getClockingUser(): ?User
     {
         return $this->clockingUser;
     }
 
-    public function setClockingUser(?User $clockingUser) : static
+    public function setClockingUser(?User $clockingUser): static
     {
         $this->clockingUser = $clockingUser;
 
         return $this;
     }
 
-    public function getDate() : ?DateTimeInterface
+    public function getDate(): ?DateTimeInterface
     {
         return $this->date;
     }
 
-    public function setDate(?DateTimeInterface $date) : void
+    public function setDate(?DateTimeInterface $date): static
     {
         $this->date = $date;
+
+        return $this;
     }
 
-    public function getDuration() : ?int
+    /**
+     * @return Collection<int, ClockingEntry>
+     */
+    public function getEntries(): Collection
     {
-        return $this->duration;
+        return $this->entries;
     }
 
-    public function setDuration(?int $duration) : void
+    public function addEntry(ClockingEntry $entry): static
     {
-        $this->duration = $duration;
+        if (!$this->entries->contains($entry)) {
+            $this->entries[] = $entry;
+            $entry->setClocking($this);
+        }
+
+        return $this;
     }
 
-    public function getId() : ?int
+    public function removeEntry(ClockingEntry $entry): static
     {
-        return $this->id;
+        if ($this->entries->removeElement($entry)) {
+            if ($entry->getClocking() === $this) {
+                $entry->setClocking(null);
+            }
+        }
+
+        return $this;
     }
 }
