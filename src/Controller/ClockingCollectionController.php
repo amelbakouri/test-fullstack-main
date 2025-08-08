@@ -60,13 +60,29 @@ AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    #[Route('/', name: 'app_Clocking_list', methods: ['GET'])]
-    public function listClockings(ClockingRepository $clockingRepository): Response
+    #[Route('', name: 'app_Clocking_list')]
+    public function list(ClockingRepository $clockingRepository): Response
     {
         $clockings = $clockingRepository->findAll();
 
+        $grouped = [];
+
+        foreach ($clockings as $clocking) {
+            $date = $clocking->getDate()->format('Y-m-d');
+
+            foreach ($clocking->getEntries() as $entry) {
+                $projectName = $entry->getProject()->getName();
+                $user = $clocking->getClockingUser();
+                $grouped[$date][$projectName][] = [
+                    'user' => $user,
+                    'duration' => $entry->getDuration(),
+                    'clocking_id' => $clocking->getId(),
+                ];
+            }
+        }
+
         return $this->render('app/Clocking/list.html.twig', [
-            'clockings' => $clockings,
+            'groupedClockings' => $grouped,
         ]);
     }
 }

@@ -2,41 +2,53 @@
 
 {% block body %}
     <div style="max-width: 900px; margin: auto; padding: 2rem; background-color: #f7f7f7; border-radius: 8px;">
-        <div style="margin-bottom: 1rem;">
+        <div style="margin-bottom: 1rem; display: flex; gap: 1rem;">
             <a href="{{ path('app_Clocking_create') }}"
                style="text-decoration: none; background-color: #333; color: white; padding: 0.5rem 1rem; border-radius: 4px;">
-                + Créer un pointage
+                + Créer un pointage (collaborateur)
+            </a>
+            <a href="{{ path('app_clocking_multi') }}"
+               style="text-decoration: none; background-color: #333; color: white; padding: 0.5rem 1rem; border-radius: 4px;">
+                + Pointage multiple (chef de project)
             </a>
         </div>
 
         <table style="width: 100%; border-collapse: collapse; font-family: sans-serif;">
             <thead>
                 <tr style="background-color: #333; color: white;">
-                    <th style="padding: 0.75rem; text-align: left;">{{ 'entity.Clocking.date'|trans }}</th>
-                    <th style="padding: 0.75rem; text-align: left;">Chantiers & Durées</th>
-                    <th style="padding: 0.75rem; text-align: left;">{{ 'entity.Clocking.clockingUser'|trans }}</th>
+                    <th style="padding: 0.75rem; text-align: left;">Date</th>
+                    <th style="padding: 0.75rem; text-align: left;">Chantier</th>
+                    <th style="padding: 0.75rem; text-align: left;">Collaborateurs</th>
                     <th style="padding: 0.75rem; text-align: left;">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for clocking in clockings %}
-                    <tr style="background-color: {{ loop.index is odd ? '#fff' : '#eee' }};">
-                        <td style="padding: 0.75rem;">{{ clocking.date|date('d/m/Y') }}</td>
-                        <td style="padding: 0.75rem;">
-                            <ul style="margin: 0; padding-left: 1rem;">
-                                {% for entry in clocking.entries %}
-                                    <li style="margin-bottom: 0.25rem;">🛠 {{ entry.project.name }} : {{ entry.duration }}h</li>
+                {% for date, projects in groupedClockings %}
+                    {% for projectName, entries in projects %}
+                        <tr style="background-color: {{ loop.parent.loop.index is odd ? '#fff' : '#eee' }};">
+                            <td style="padding: 0.75rem;">{{ date|date('d/m/Y') }}</td>
+                            <td style="padding: 0.75rem;">🛠 {{ projectName }}</td>
+                            <td style="padding: 0.75rem;">
+                                <ul style="margin: 0; padding-left: 1rem;">
+                                    {% for entry in entries %}
+                                        <li>
+                                            👤 {{ entry.user.lastName }} {{ entry.user.firstName }} : {{ entry.duration }}h
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td style="padding: 0.75rem;">
+                                {% for entry in entries %}
+                                    <div>
+                                        <a href="{{ path('app_Clocking_delete', {id: entry.clocking_id}) }}"
+                                           style="color: #a00; text-decoration: none; font-weight: bold;">
+                                            Supprimer 
+                                        </a>
+                                    </div>
                                 {% endfor %}
-                            </ul>
-                        </td>
-                        <td style="padding: 0.75rem;">👤 {{ clocking.clockingUser.lastName }} {{ clocking.clockingUser.firstName }}</td>
-                        <td style="padding: 0.75rem;">
-                            <a href="{{ path('app_Clocking_delete', {id: clocking.id}) }}"
-                               style="color: #a00; text-decoration: none; font-weight: bold;">
-                                Supprimer
-                            </a>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 {% else %}
                     <tr>
                         <td colspan="4" style="padding: 1rem; text-align: center; color: #666;">
