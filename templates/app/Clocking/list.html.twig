@@ -1,31 +1,62 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div>
-        <a href="{{ path('app_Clocking_create') }}">Créer</a>
-    </div>
-    <table>
-        <thead>
-            <tr>
-                <td>{{ 'entity.Clocking.date'|trans }}</td>
-                <td>{{ 'entity.Clocking.duration'|trans }}</td>
-                <td>{{ 'entity.Clocking.clockingProject'|trans }}</td>
-                <td>{{ 'entity.Clocking.clockingUser'|trans }}</td>
-                <td>Actions</td>
-            </tr>
-        </thead>
-        <tbody>
-            {% for clocking in clockings %}
-                <tr>
-                    <td>{{ clocking.date|date }}</td>
-                    <td>{{ clocking.duration }}</td>
-                    <td>{{ clocking.clockingProject.name }}</td>
-                    <td>{{ clocking.clockingUser.lastName }} {{ clocking.clockingUser.firstName }}</td>
-                    <td>
-                        <a href="{{ path('app_Clocking_delete', {id: clocking.id}) }}">Supprimer</a>
-                    </td>
+    <div style="max-width: 900px; margin: auto;">
+        <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem;">
+            <a href="{{ path('app_Clocking_create') }}"
+               style="text-decoration: none; background-color: #333; color: white; padding: 0.5rem 1rem; border-radius: 4px;">
+                + Créer un pointage (collaborateur)
+            </a>
+            <a href="{{ path('app_clocking_multi') }}"
+               style="text-decoration: none; background-color: #333; color: white; padding: 0.5rem 1rem; border-radius: 4px;">
+                + Pointage multiple (chef de projet)
+            </a>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 0.95rem;">
+            <thead>
+                <tr style="background-color: #eaeaea; border-bottom: 2px solid #ccc;">
+                    <th style="padding: 0.75rem; text-align: left;">Date</th>
+                    <th style="padding: 0.75rem; text-align: left;">Chantier</th>
+                    <th style="padding: 0.75rem; text-align: left;">Collaborateurs</th>
+                    <th style="padding: 0.75rem; text-align: left;">Actions</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for date, projects in groupedClockings %}
+                    {% for projectName, entries in projects %}
+                        <tr style="background-color: {{ loop.parent.loop.index is odd ? '#f9f9f9' : '#fff' }}; border-bottom: 1px solid #ddd;">
+                            <td style="padding: 0.75rem;">{{ date|date('d/m/Y') }}</td>
+                            <td style="padding: 0.75rem;">{{ projectName }}</td>
+                            <td style="padding: 0.75rem;">
+                                <ul style="margin: 0; padding-left: 1rem; list-style: none;">
+                                    {% for entry in entries %}
+                                        <li style="margin-bottom: 0.25rem;">
+                                            {{ entry.user.lastName }} {{ entry.user.firstName }} : {{ entry.duration }}h
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td style="padding: 0.75rem;">
+                                {% for entry in entries %}
+                                    <div style="margin-bottom: 0.25rem;">
+                                        <a href="{{ path('app_Clocking_delete', {id: entry.clocking_id}) }}"
+                                           style="color: #a00; text-decoration: none; font-weight: bold;">
+                                            Supprimer
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" style="padding: 1rem; text-align: center; color: #777;">
+                            Aucun pointage pour le moment.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

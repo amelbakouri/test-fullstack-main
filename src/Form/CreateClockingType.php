@@ -10,11 +10,12 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CreateClockingType extends
-    AbstractType
+AbstractType
 {
 
     /**
@@ -26,31 +27,27 @@ class CreateClockingType extends
     public function buildForm(
         FormBuilderInterface $builder,
         array                $options
-    ) : void {
-        $builder->add('clockingProject', EntityType::class, [
-            'class'        => Project::class,
-            'choice_label' => 'name',
-            'label'        => 'entity.Clocking.clockingProject',
-        ]);
+    ): void {
         $builder->add('clockingUser', EntityType::class, [
-            'class'        => User::class,
-            'choice_label' => static function(
-                ?User $choice
-            ) : ?string {
-                return $choice === null
-                    ? null
-                    : $choice->getLastName() . ' ' . $choice->getFirstName();
-            },
-            'label'        => 'entity.Clocking.clockingUser',
+            'class' => User::class,
+            'choice_label' => fn(?User $user) => $user?->getLastName() . ' ' . $user?->getFirstName(),
+            'label' => 'Collaborateur',
         ]);
+
         $builder->add('date', DateType::class, [
-            'label' => 'entity.Clocking.dateEnd',
+            'label' => 'Date',
         ]);
-        $builder->add('duration', IntegerType::class, [
-            'label' => 'entity.Clocking.duration',
+
+        $builder->add('entries', CollectionType::class, [
+            'entry_type' => ClockingEntryType::class,
+            'allow_add' => true,
+            'allow_delete' => true,
+            'by_reference' => false,
+            'label' => false,
         ]);
+
         $builder->add('submit', SubmitType::class, [
-            'label' => 'Créer',
+            'label' => 'Valider',
         ]);
     }
 
@@ -59,7 +56,7 @@ class CreateClockingType extends
      *
      * @return void
      */
-    public function configureOptions(OptionsResolver $resolver) : void
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(
             [
