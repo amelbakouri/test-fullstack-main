@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+  <div class="min-vh-100 d-flex align-items-center justify-content-center bg-body-tertiary">
+    <div class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+          <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+              <h1 class="h4 mb-4 text-center">Créer un compte</h1>
+
+              {{ form_start(registrationForm, { attr: { novalidate: 'novalidate' } }) }}
+
+                {{ form_errors(registrationForm) }}
+
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    {{ form_row(registrationForm.firstName, {
+                      label: 'Prénom',
+                      row_attr: { class: 'mb-3' },
+                      attr: { placeholder: 'Ex : Amel' }
+                    }) }}
+                  </div>
+                  <div class="col-md-6">
+                    {{ form_row(registrationForm.lastName, {
+                      label: 'Nom',
+                      row_attr: { class: 'mb-3' },
+                      attr: { placeholder: 'Ex : Bakouri' }
+                    }) }}
+                  </div>
+                </div>
+
+                {{ form_row(registrationForm.matricule, {
+                  label: 'Matricule',
+                  row_attr: { class: 'mb-3' },
+                  attr: { placeholder: 'Identifiant de connexion' }
+                }) }}
+
+                {{ form_row(registrationForm.plainPassword, {
+                  label: 'Mot de passe',
+                  row_attr: { class: 'mb-3' },
+                  attr: { autocomplete: 'new-password', placeholder: '••••••••' }
+                }) }}
+
+                {{ form_row(registrationForm.role, {
+                  label: 'Rôle',
+                  row_attr: { class: 'mb-3' }
+                }) }}
+
+                <div class="form-check mb-4">
+                  {{ form_widget(registrationForm.agreeTerms, { attr: { class: 'form-check-input' } }) }}
+                  <label class="form-check-label" for="{{ registrationForm.agreeTerms.vars.id }}">
+                    J’accepte les conditions d’utilisation
+                  </label>
+                  {{ form_errors(registrationForm.agreeTerms) }}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                  S’inscrire
+                </button>
+
+              {{ form_end(registrationForm) }}
+
+              <p class="text-center text-muted small mt-3 mb-0">
+                Vous avez déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a>
+              </p>
+            </div>
+          </div>
+
+          <p class="text-center text-muted small mt-3">
+            En vous inscrivant, vous acceptez notre politique de confidentialité.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

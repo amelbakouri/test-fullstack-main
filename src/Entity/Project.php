@@ -31,6 +31,7 @@ class Project
     private ?int               $id        = null;
     #[ORM\Column(length: 255)]
     private ?string            $name      = null;
+    
 
     public function __construct()
     {

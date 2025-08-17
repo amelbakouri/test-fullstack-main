@@ -11,6 +11,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Table(name: 'clocking')]
+#[ORM\UniqueConstraint(name: 'uniq_user_date', columns: ['clocking_user_id', 'date'])]
 #[ORM\Entity(repositoryClass: ClockingRepository::class)]
 class Clocking
 {
@@ -22,6 +24,11 @@ class Clocking
     #[ORM\ManyToOne(inversedBy: 'clockings')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $clockingUser = null;
+
+    #[ORM\ManyToOne(inversedBy: 'clockings')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Project $clockingProject = null;
+
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?DateTimeInterface $date = null;
@@ -89,6 +96,17 @@ class Clocking
             }
         }
 
+        return $this;
+    }
+
+    public function getClockingProject(): ?Project
+    {
+        return $this->clockingProject;
+    }
+
+    public function setClockingProject(?Project $project): static
+    {
+        $this->clockingProject = $project;
         return $this;
     }
 }

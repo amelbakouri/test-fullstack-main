@@ -22,7 +22,7 @@ class ClockingEntry
     private ?int $duration = null;
 
     #[ORM\ManyToOne(inversedBy: 'entries')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Clocking $clocking = null;
 
 

@@ -13,3 +13,5 @@ symfony console doctrine:migrations:migrate
 # Pour démarrer le serveur local
 symfony serve
 ```
+j'ai 
+php bin/console make:auth
