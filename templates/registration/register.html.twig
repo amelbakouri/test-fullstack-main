@@ -3,7 +3,7 @@
 {% block title %}Inscription{% endblock %}
 
 {% block body %}
-  <div class="min-vh-100 d-flex align-items-center justify-content-center bg-body-tertiary">
+  <div class="min-vh-100 d-flex align-items-center justify-content-center">
     <div class="container py-5">
       <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6 col-xl-5">
@@ -17,37 +17,48 @@
 
                 <div class="row g-3">
                   <div class="col-md-6">
-                    {{ form_row(registrationForm.firstName, {
-                      label: 'Prénom',
-                      row_attr: { class: 'mb-3' },
-                      attr: { placeholder: 'Ex : Amel' }
-                    }) }}
+                    <div class="form-floating mb-3">
+                      {{ form_widget(registrationForm.firstName, {
+                        attr: { placeholder: 'Prénom', class: 'form-control' }
+                      }) }}
+                      <label for="{{ registrationForm.firstName.vars.id }}">Prénom</label>
+                      {{ form_errors(registrationForm.firstName) }}
+                    </div>
                   </div>
                   <div class="col-md-6">
-                    {{ form_row(registrationForm.lastName, {
-                      label: 'Nom',
-                      row_attr: { class: 'mb-3' },
-                      attr: { placeholder: 'Ex : Bakouri' }
-                    }) }}
+                    <div class="form-floating mb-3">
+                      {{ form_widget(registrationForm.lastName, {
+                        attr: { placeholder: 'Nom', class: 'form-control' }
+                      }) }}
+                      <label for="{{ registrationForm.lastName.vars.id }}">Nom</label>
+                      {{ form_errors(registrationForm.lastName) }}
+                    </div>
                   </div>
                 </div>
 
-                {{ form_row(registrationForm.matricule, {
-                  label: 'Matricule',
-                  row_attr: { class: 'mb-3' },
-                  attr: { placeholder: 'Identifiant de connexion' }
-                }) }}
+                <div class="form-floating mb-3">
+                  {{ form_widget(registrationForm.matricule, {
+                    attr: { placeholder: 'Matricule', class: 'form-control' }
+                  }) }}
+                  <label for="{{ registrationForm.matricule.vars.id }}">Matricule</label>
+                  {{ form_errors(registrationForm.matricule) }}
+                </div>
 
-                {{ form_row(registrationForm.plainPassword, {
-                  label: 'Mot de passe',
-                  row_attr: { class: 'mb-3' },
-                  attr: { autocomplete: 'new-password', placeholder: '••••••••' }
-                }) }}
+                <div class="form-floating mb-3">
+                  {{ form_widget(registrationForm.plainPassword, {
+                    attr: { placeholder: 'Mot de passe', class: 'form-control', autocomplete: 'new-password' }
+                  }) }}
+                  <label for="{{ registrationForm.plainPassword.vars.id }}">Mot de passe</label>
+                  {{ form_errors(registrationForm.plainPassword) }}
+                </div>
 
-                {{ form_row(registrationForm.role, {
-                  label: 'Rôle',
-                  row_attr: { class: 'mb-3' }
-                }) }}
+                <div class="form-floating mb-3">
+                  {{ form_widget(registrationForm.role, {
+                    attr: { class: 'form-select' }
+                  }) }}
+                  <label for="{{ registrationForm.role.vars.id }}">Rôle</label>
+                  {{ form_errors(registrationForm.role) }}
+                </div>
 
                 <div class="form-check mb-4">
                   {{ form_widget(registrationForm.agreeTerms, { attr: { class: 'form-check-input' } }) }}
@@ -57,14 +68,15 @@
                   {{ form_errors(registrationForm.agreeTerms) }}
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">
+                <button type="submit" class="btn btn-primary w-100 py-2">
                   S’inscrire
                 </button>
 
               {{ form_end(registrationForm) }}
 
               <p class="text-center text-muted small mt-3 mb-0">
-                Vous avez déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a>
+                Vous avez déjà un compte ?
+                <a href="{{ path('app_login') }}">Se connecter</a>
               </p>
             </div>
           </div>

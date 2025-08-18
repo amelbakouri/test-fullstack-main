@@ -17,6 +17,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('IS_AUTHENTICATED_FULLY')]
 class ClockingMultiController extends AbstractController
 {
+
     #[Route('/clockings/multi', name: 'app_clocking_multi', methods: ['GET', 'POST'])]
     public function multiClocking(Request $request, EntityManagerInterface $em): Response
     {
@@ -24,19 +25,26 @@ class ClockingMultiController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data    = $form->getData();
-            $project = $data['project'];
-            $date    = $data['date'];
+            $project = $form->get('project')->getData();
+            $date    = $form->get('date')->getData();
+            $rows    = $form->get('entries')->getData();
 
-            foreach ($data['entries'] as $row) {
+            if (empty($rows)) {
+                $this->addFlash('warning', 'Veuillez ajouter au moins un collaborateur.');
+                return $this->render('app/Clocking/multi_create.html.twig', [
+                    'form' => $form->createView(),
+                ]);
+            }
+
+            foreach ($rows as $row) {
                 $user     = $row['user'];
                 $duration = $row['duration'];
 
-                // 1) Récupérer ou créer le Clocking 
                 $clocking = $em->getRepository(Clocking::class)->findOneBy([
                     'clockingUser' => $user,
                     'date'         => $date,
                 ]);
+
                 if (!$clocking) {
                     $clocking = new Clocking();
                     $clocking->setClockingUser($user);
@@ -44,19 +52,21 @@ class ClockingMultiController extends AbstractController
                     $em->persist($clocking);
                 }
 
-                // 2) Ajouter une entrée 
+
                 $entry = new ClockingEntry();
                 $entry->setProject($project);
                 $entry->setDuration($duration);
                 $entry->setClocking($clocking);
 
                 $clocking->addEntry($entry);
+                $em->persist($entry);      
             }
 
             $em->flush();
+
+
             return $this->redirectToRoute('app_Clocking_list');
         }
-
 
         return $this->render('app/Clocking/multi_create.html.twig', [
             'form' => $form->createView(),

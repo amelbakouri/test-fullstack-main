@@ -62,22 +62,32 @@ AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    #[Route('', name: 'app_Clocking_list')]
-    public function list(ClockingRepository $clockingRepository): Response
-    {
-        $clockings = $clockingRepository->findAll();
+    #[Route('', name: 'app_Clocking_list', methods: ['GET'])]
+    public function list(
+        ClockingRepository $clockingRepository,
+        Request $request
+    ): Response {
+        $order = strtoupper((string) $request->query->get('order', 'DESC'));
+        if (!\in_array($order, ['ASC', 'DESC'], true)) {
+            $order = 'DESC';
+        }
+
+        $clockings = $clockingRepository->findBy([], ['date' => $order]);
 
         $grouped = [];
 
         foreach ($clockings as $clocking) {
-            $date = $clocking->getDate()->format('Y-m-d');
+            /** @var \App\Entity\Clocking $clocking */
+            $dateKey = $clocking->getDate()->format('Y-m-d');
 
             foreach ($clocking->getEntries() as $entry) {
+                /** @var \App\Entity\ClockingEntry $entry */
                 $projectName = $entry->getProject()->getName();
                 $user = $clocking->getClockingUser();
-                $grouped[$date][$projectName][] = [
-                    'user' => $user,
-                    'duration' => $entry->getDuration(),
+
+                $grouped[$dateKey][$projectName][] = [
+                    'user'        => $user,
+                    'duration'    => $entry->getDuration(),
                     'clocking_id' => $clocking->getId(),
                 ];
             }
@@ -85,6 +95,7 @@ AbstractController
 
         return $this->render('app/Clocking/list.html.twig', [
             'groupedClockings' => $grouped,
+            'order'            => $order,
         ]);
     }
 }
