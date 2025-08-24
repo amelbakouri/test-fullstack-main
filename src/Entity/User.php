@@ -36,7 +36,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $matricule = null; 
 
 
-    #[ORM\Column(type: 'json', nullable: false, options: ['default' => '[]'])]
+    #[ORM\Column(type: 'json', nullable: false)]
     private array $roles = [];
 
     #[ORM\Column(length: 255)]

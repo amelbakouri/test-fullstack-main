@@ -1,57 +1,53 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-	<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem;">
-		<h1 style="color: #333; margin-bottom: 1rem;">Créer un pointage</h1>
+	{% form_theme form 'bootstrap_5_layout.html.twig' %}
 
-		{{ form_start(form, {
-			attr: {
-				style: 'background-color:rgb(255, 255, 255); padding: 2rem; border-radius: 8px; color: #000; max-width: 700px; width: 100%;'
-			}
-		}) }}
+	<div class="container py-5">
+		<div class="row justify-content-center">
+			<div class="col-12 col-lg-8 col-xl-7">
+				<h1 class="text-center mb-4 text-dark">Créer un pointage</h1>
 
-		<div style="margin-bottom: 1.5rem;">
-			{{ form_row(form.clockingUser, {
-				label_attr: { style: 'color: #555; font-weight: bold;' },
-				attr: { style: 'background-color: #ffffff; color: #000; border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;' }
-			}) }}
-		</div>
+				{{ form_start(form, {
+                    attr: {
+                        class: 'bg-white p-4 p-md-5 rounded-3 shadow-sm'
+                    }
+                }) }}
 
-		<div style="margin-bottom: 1.5rem;">
-			{{ form_row(form.date, {
-				label_attr: { style: 'color: #555; font-weight: bold;' },
-				attr: { style: 'background-color: #ffffff; color: #000; border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;' }
-			}) }}
-		</div>
-
-		<h3 style="color: #444;">Chantiers</h3>
-
-		<div id="entries-wrapper" data-prototype="{{ form_widget(form.entries.vars.prototype)|e('html_attr') }}" style="width: 100%;">
-			{% for entryForm in form.entries %}
-				<div class="entry-item" style="background-color: #efefef; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-					{{ form_row(entryForm.project, {
-						label_attr: { style: 'color: #444;' },
-						attr: { style: 'background-color: #fff; color: #000; border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;' }
-					}) }}
-					{{ form_row(entryForm.duration, {
-						label_attr: { style: 'color: #444;' },
-						attr: { style: 'background-color: #fff; color: #000; border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;' }
-					}) }}
+				<div class="mb-3">
+					{{ form_row(form.clockingUser) }}
 				</div>
-			{% endfor %}
+
+				<div class="mb-4">
+					{{ form_row(form.date) }}
+				</div>
+
+				<h3 class="h5 mb-3 text-secondary">Chantiers</h3>
+
+				<div id="entries-wrapper" class="d-flex flex-column" data-prototype="{{ form_widget(form.entries.vars.prototype)|e('html_attr') }}">
+					{% for entryForm in form.entries %}
+						<div class="entry-item bg-light border rounded-3 p-3 mb-3">
+							<div class="mb-3">
+								{{ form_row(entryForm.project) }}
+							</div>
+							<div>
+								{{ form_row(entryForm.duration) }}
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+
+				<button type="button" id="add-entry" class="btn btn-outline-secondary mb-3">
+					+ Ajouter un chantier
+				</button>
+
+				{{ form_row(form.submit, {
+                    attr: { class: 'btn btn-dark mt-2' }
+                }) }}
+
+				{{ form_end(form) }}
+			</div>
 		</div>
-
-		<button type="button" id="add-entry" style="background-color: #ccc; color: #000; border: 1px solid #aaa; padding: 0.5rem 1rem; border-radius: 4px; margin-bottom: 1rem; cursor: pointer;">
-			+ Ajouter un chantier
-		</button>
-
-		{{ form_row(form.submit, {
-			attr: {
-				style: 'background-color: #333; color: #fff; border: none; padding: 0.6rem 1.2rem; border-radius: 4px; margin-top: 1rem; cursor: pointer;'
-			}
-		}) }}
-
-		{{ form_end(form) }}
 	</div>
 {% endblock %}
 
@@ -59,20 +55,25 @@
 	{{ parent() }}
 	<script>
 		document.addEventListener('DOMContentLoaded', () => {
-			const wrapper = document.getElementById('entries-wrapper');
-			const addButton = document.getElementById('add-entry');
-			let index = {{ form.entries|length }};
+const wrapper = document.getElementById('entries-wrapper');
+const addButton = document.getElementById('add-entry');
+let index = {{ form.entries|length }};
 
-			addButton.addEventListener('click', () => {
-				const prototype = wrapper.dataset.prototype;
-				const newFormHtml = prototype.replace(/__name__/g, index);
-				const entryDiv = document.createElement('div');
+addButton.addEventListener('click', () => {
+const prototype = wrapper.dataset.prototype;
+const newFormHtml = prototype.replace(/__name__/g, index);
 
-				entryDiv.setAttribute('style', 'background-color: #efefef; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;');
-				entryDiv.innerHTML = newFormHtml;
-				wrapper.appendChild(entryDiv);
-				index++;
-			});
-		});
+const entryDiv = document.createElement('div');
+entryDiv.className = 'entry-item bg-light border rounded-3 p-3 mb-3';
+entryDiv.innerHTML = `
+                    <div class="row g-3">
+                        ${newFormHtml}
+                    </div>
+                `;
+
+wrapper.appendChild(entryDiv);
+index++;
+});
+});
 	</script>
 {% endblock %}

@@ -29,16 +29,13 @@ class ClockingMultiController extends AbstractController
             $date    = $form->get('date')->getData();
             $rows    = $form->get('entries')->getData();
 
-            if (empty($rows)) {
-                $this->addFlash('warning', 'Veuillez ajouter au moins un collaborateur.');
-                return $this->render('app/Clocking/multi_create.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
+            foreach ($form->get('entries') as $rowForm) {
+                $user     = $rowForm->get('user')->getData();
+                $duration = (int)$rowForm->get('duration')->getData();
 
-            foreach ($rows as $row) {
-                $user     = $row['user'];
-                $duration = $row['duration'];
+                if (!$user || $duration <= 0) {
+                    continue;
+                }
 
                 $clocking = $em->getRepository(Clocking::class)->findOneBy([
                     'clockingUser' => $user,
@@ -52,15 +49,15 @@ class ClockingMultiController extends AbstractController
                     $em->persist($clocking);
                 }
 
-
                 $entry = new ClockingEntry();
                 $entry->setProject($project);
                 $entry->setDuration($duration);
                 $entry->setClocking($clocking);
 
                 $clocking->addEntry($entry);
-                $em->persist($entry);      
+                $em->persist($entry);
             }
+
 
             $em->flush();
 

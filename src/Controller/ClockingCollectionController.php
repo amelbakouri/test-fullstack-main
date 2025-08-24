@@ -41,16 +41,32 @@ AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // ✅ S'assurer que chaque ClockingEntry connaît son Clocking parent
-            foreach ($clocking->getEntries() as $entry) {
-                $entry->setClocking($clocking);
-            }
+            $existing = $entityManager->getRepository(Clocking::class)->findOneBy([
+                'clockingUser' => $clocking->getClockingUser(),
+                'date'         => $clocking->getDate(),
+            ]);
 
-            $entityManager->persist($clocking);
-            $entityManager->flush();
+            if ($existing) {
+                foreach ($clocking->getEntries() as $entry) {
+                    $e = new ClockingEntry();
+                    $e->setProject($entry->getProject());
+                    $e->setDuration((int)$entry->getDuration());
+                    $e->setClocking($existing);
+                    $existing->addEntry($e);
+                    $entityManager->persist($e);
+                }
+                $entityManager->flush();
+            } else {
+                foreach ($clocking->getEntries() as $entry) {
+                    $entry->setClocking($clocking);
+                }
+                $entityManager->persist($clocking);
+                $entityManager->flush();
+            }
 
             return $this->redirectToRoute('app_Clocking_list');
         }
+
 
         return $this->render('app/Clocking/create.html.twig', [
             'form' => $form->createView(),
